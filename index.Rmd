@@ -19,14 +19,21 @@ tidy=TRUE, tidy.opts=list(width.cutoff=60), R.options=list(max.print=100))
 
 ## Data Wrangling, Exploration, Visualization
 
-### Name and EID here
+### Sara Blanco, seb4296
 
 #### Introduction 
 
 Paragraph or two introducing your datasets and variables, why they are interesting to you, etc.
 
 ```{R}
-# read your datasets in here, e.g., with read_csv()
+library(tidyverse)
+#USRent <- read.csv("~/us_rent_income.csv")
+DeathRate <- read_csv("~/DeathRate.csv")
+HealthIns <- read_csv("~/healthins.csv")
+
+#head(USRent)
+head(DeathRate)
+head(HealthIns)
 
 ```
 
@@ -35,32 +42,127 @@ Paragraph or two introducing your datasets and variables, why they are interesti
 If your datasets are tidy already, demonstrate that you can reshape data with pivot wider/longer here (e.g., untidy and then retidy). Alternatively, it may be easier to wait until the wrangling section so you can reshape your summary statistics. Note here if you are going to do this.
 
 ```{R}
-# your tidying code (if applicable; can also wait until wrangling section)
+#usrentin <- USRent %>% pivot_wider(names_from="variable", values_from="estimate") %>% select(-moe)
+#usrentin <- usrentin %>% group_by(NAME) %>% summarize(income=max(income,na.rm=T),rent=max(rent,na.rm=T))
+#usrentin
+
+
+
+
+usdeath <- DeathRate %>% pivot_longer(2:73, names_to="CancerType", values_to="DeathRate") 
+usdeath <- usdeath %>% na_if("n/a") %>% na_if("Not available - Rate not displayed due to fewer than 10 deaths.")
+usdeath <- usdeath %>% mutate(DeathRate = str_remove_all(DeathRate, "[- Female breast cancer only.]")) %>% mutate(State = str_replace_all(State, "All U.S. combined", "United States"))
+
+usdeath <- usdeath %>% mutate(DeathRate = as.numeric(DeathRate))
+usdeath %>% str()
+
+
+
+healthinsurance <- HealthIns %>% rename("2010" = "Uninsured Rate (2010)") %>% rename("2015" = "Uninsured Rate (2015)")  %>% rename("2013" = "Medicaid Enrollment (2013)") %>% rename("2016" = "Medicaid Enrollment (2016)") %>% rename("MedicaidExpansion" = "State Medicaid Expansion (2016)") %>% pivot_longer(cols=c("2010":"2015"), names_to="UninsuredYear", values_to="UninsuredRateperc") %>% mutate(UninsuredRateperc = str_remove_all(UninsuredRateperc, "[-%]")) %>% pivot_longer(cols=c("2013":"2016"), names_to="MedicaidYear", values_to="MedicaidEnrollment") %>% select(-"Marketplace Tax Credits (2016)", -"Average Monthly Tax Credit (2016)", -"Employer Health Insurance Coverage (2015)", - "Marketplace Health Insurance Coverage (2016)", -"Health Insurance Coverage Change (2010-2015)", -"Medicare Enrollment (2016)", -"Uninsured Rate Change (2010-2015)", -"Medicaid Enrollment Change (2013-2016)")
+
+healthinsurance <- healthinsurance %>% mutate(UninsuredRateperc = as.numeric(UninsuredRateperc))
+healthinsurance %>% str()
+
+
+
+#Uninsured Year = uninsured rate before (2010) and after (2015) ACA
+#Medicaid Year = medicaid enrollment before (2013) and after (2016) ACA
+healthinsurance
+
+#May use pivot_wider when reshaping summary statistics!
+#healthinsurance %>% pivot_wider()
+
 ```
 
     
 #### Joining/Merging
 
 ```{R}
-# your joining code
-
-# your joining code
+fulldata <- left_join(healthinsurance, usdeath, by="State")
+glimpse(fulldata)
+fulldata
 ```
-
 Discussions of joining here. Feel encouraged to break up into more than once code chunk and discuss each in turn.
+
+```{R}
+healthinsurance %>% dim()
+usdeath %>% dim()
+fulldata %>% dim()
+#Disucss the size of joined dataset and how it relates to size of original datasets
+#In the joined dataset, note how many observations/rows were dropped, and any potential problems with this
+
+```
+Discussions of joining here. Feel encouraged to break up into more than once code chunk and discuss each in turn.
+
+```{R}
+#healthinsurance %>% distinct(State) 
+healthinsurance %>% summarize_all(n_distinct)
+#usdeath %>% distinct(State) 
+usdeath %>% summarize_all(n_distinct)
+fulldata %>% summarize_all(n_distinct)
+
+```
+Discussions of joining here. Feel encouraged to break up into more than once code chunk and discuss each in turn.
+
+```{R}
+anti_join(healthinsurance, usdeath, by="State") %>% distinct(State)
+#who in insurance does not have a match in death
+anti_join(usdeath, healthinsurance, by="State") %>% distinct(State)
+semi_join(healthinsurance, usdeath, by="State") %>% distinct(State)
+#who in insurance is in death
+semi_join(usdeath, healthinsurance, by="State") %>% distinct(State)
+```
+Discussions of joining here. Feel encouraged to break up into more than once code chunk and discuss each in turn.
+
+
 
 ####  Wrangling
 
 ```{R}
-# your wrangling code
+#need to use 3 more functions within summarize 
+#need to use my own function within summarize
+#use mutate?!?!?
+#stringr function
 
-# your wrangling code
+#mutate()
+#summarize()
 
-# your wrangling code
+fulldata %>% summarize_all(n_distinct)
+
+
+fulldata %>% group_by(MedicaidExpansion) %>% filter(MedicaidExpansion == TRUE) %>% distinct(State) %>% summarize(n=n())
+#fulldata %>% group_by(MedicaidExpansion)  %>% distinct(State) %>% summarize(sum(MedicaidExpansion))
+
+fulldata %>% group_by(State) %>% summarize(Uninsuredsd = sd(UninsuredRateperc)) %>% arrange(desc(Uninsuredsd))
+
+fulldata %>% group_by(State) %>% filter(MedicaidExpansion == TRUE, MedicaidYear == 2013) %>% select(MedicaidEnrollment) %>% distinct(MedicaidEnrollment)
+
+fulldata %>% group_by(State, CancerType) %>% filter(MedicaidExpansion == TRUE) %>% filter(!CancerType == "All cancer types combined / Male", !CancerType == "All cancer types combined / Both sexes combined", !CancerType == "All cancer types combined / Female") %>% arrange(desc(DeathRate)) %>% distinct(DeathRate)
+
+
+fulldata %>% na.omit() %>% filter(MedicaidEnrollment == max(MedicaidEnrollment))
+
+  
+  
+#filter(!CancerType == "All cancer types combined / Male", !CancerType == "All cancer types combined / Both sexes combined", !CancerType == "All cancer types combined / Female") %>% filter(!State == "United States") %>% arrange(desc(MedicaidEnrollment)) %>% distinct(MedicaidEnrollment) %>% filter(MedicaidEnrollment==max(MedicaidEnrollment))
+
+
+#mutate to calculate change in expansion or insured vs. death rate by state
+#mean, standard deviation, count, and standard error of `distance` in each month (i.e., averaged across `day`) for flights from the three different New York airports (`origin`). You will use your sd and count to find your se=sd/sqrt(count). Rename your summary variables inside of `summarize()`. 
+
+
 ```
-
 Your discussion of wrangling section here. Feel encouraged to break up into more than once code chunk and discuss each in turn.
 
+```{R}
+
+```
+Your discussion of wrangling section here. Feel encouraged to break up into more than once code chunk and discuss each in turn.
+
+```{R}
+
+```
+Your discussion of wrangling section here. Feel encouraged to break up into more than once code chunk and discuss each in turn.
 
 #### Visualizing
 
