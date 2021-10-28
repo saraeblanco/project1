@@ -64,7 +64,6 @@ healthinsurance <- healthinsurance %>% mutate(UninsuredRateperc = as.numeric(Uni
 healthinsurance %>% str()
 
 
-
 #Uninsured Year = uninsured rate before (2010) and after (2015) ACA
 #Medicaid Year = medicaid enrollment before (2013) and after (2016) ACA
 healthinsurance
