@@ -156,19 +156,36 @@ Your discussion of wrangling section here. Feel encouraged to break up into more
 ### Visualizing
 
 ```{R}
-# your plot 1
+#ggplot(fulldata, aes(x= , y=DeathRate, color= State)) + geom_point(size= , alpha =)
+  
+fulldata %>% group_by(State, CancerType) %>% filter(!CancerType == "All cancer types combined") %>% filter(!State == "United States") %>% distinct(CancerType) 
+
+
+
+
+fulldata %>% group_by(State, UninsuredRateperc, UninsuredYear, CancerType, DeathRate, MedicaidExpansion) %>% filter(!State == "United States") %>% distinct(UninsuredRateperc) %>% arrange(desc(UninsuredRateperc)) %>% filter(CancerType == "All cancer types combined / Both sexes combined") %>% filter(MedicaidExpansion == FALSE) %>% ggplot(aes(y=UninsuredRateperc, x=DeathRate, color=State)) + geom_point(aes(shape=UninsuredYear), alpha=0.80) + geom_line() + ggtitle("Change in Uninsured and Death Rates of Non-Expanding States") + xlab("Death Rate for All cancer types combined / Both sexes combined") + ylab("Uninsured Rate") + theme(plot.title = element_text(hjust = 0.5)) + scale_y_continuous(breaks=seq(0,25,10)) + theme(legend.title = element_text( size=10), legend.text=element_text(size=8))
+  
 ```
 
 Your discussion of plot 1
 
 ```{R}
-# your plot 2
+fulldata %>% group_by(State, MedicaidExpansion, CancerType, DeathRate) %>% filter(!CancerType == "All cancer types combined") %>% filter(!State == "United States") %>% distinct(CancerType) %>% filter(CancerType == "Lung and bronchus / Both sexes combined") %>% ggplot(aes(y=State, fill=MedicaidExpansion)) + geom_bar(aes(x=DeathRate), stat = "summary") + ggtitle("Lung and Bronchus Death by State") + theme(plot.title = element_text(hjust = 0.5)) + scale_x_continuous(breaks=seq(0,800,100)) + scale_fill_brewer(palette="Set1") + xlab("Death Rate for Lung and bronchus / Both sexes combined") + theme(plot.title = element_text(hjust = 0.5)) + theme(legend.title = element_text( size=10), legend.text=element_text(size=8))
+
+
+#fulldata %>% group_by(State, MedicaidExpansion, CancerType, DeathRate) %>% mutate(CancerType = str_remove_all(CancerType, " / Male")) %>% mutate(CancerType = str_remove_all(CancerType, " / Female")) %>% mutate(CancerType = str_remove_all(CancerType, " / Male")) %>% mutate(CancerType = str_remove_all(CancerType, " / Both sexes combined")) %>% filter(!CancerType == "All cancer types combined") %>% filter(!State == "United States") %>% distinct(CancerType) %>% filter(CancerType == "Lung and bronchus") 
+
+#%>% mutate(CancerType = str_remove_all(CancerType, " / Male")) %>% mutate(CancerType = str_remove_all(CancerType, " / Female")) %>% mutate(CancerType = str_remove_all(CancerType, " / Male")) %>% mutate(CancerType = str_remove_all(CancerType, " / Both sexes combined"))%>%
 ```
 
 Your discussion of plot 2
 
 ```{R}
-# your plot 3
+#fulldata %>% na.omit() %>% group_by(UninsuredRateperc, UninsuredYear, State, DeathRate) %>% filter(CancerType == "All cancer types combined / Both sexes combined") %>% ggplot(aes(x=DeathRate)) + geom_density(alpha =0.25) + facet_grid(~MedicaidExpansion)
+  
+fulldata %>% na.omit() %>% filter(!CancerType == "All cancer types combined / Male", !CancerType == "All cancer types combined / Both sexes combined", !CancerType == "All cancer types combined / Female") %>% filter(!State == "United States") %>% arrange(desc(MedicaidEnrollment)) %>% ggplot(aes(x=MedicaidEnrollment, y=DeathRate, color=State)) + geom_point(alpha =0.25) + facet_grid(~MedicaidYear) + theme(legend.title = element_text( size=10), legend.text=element_text(size=8)) + scale_x_log10() + ggtitle("Medicaid Enrollment and Death Rate by State Before and After ACA") + xlab("Medicaid Enrollment") + ylab("Death Rate") + theme(plot.title = element_text(hjust = 0.5)) + theme(legend.title = element_text( size=10), legend.text=element_text(size=8))
+
+
 ```
 
 Your discussion of plot 3
