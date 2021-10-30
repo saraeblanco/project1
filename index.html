@@ -1535,15 +1535,15 @@ div.tocify {
 <h2>Data Wrangling, Exploration, Visualization</h2>
 <div id="sara-blanco-seb4296" class="section level3">
 <h3>Sara Blanco, seb4296</h3>
-<div id="introduction" class="section level4">
-<h4>Introduction</h4>
+</div>
+<div id="introduction" class="section level3">
+<h3>Introduction</h3>
 <p>Paragraph or two introducing your datasets and variables, why they are interesting to you, etc.</p>
 <pre class="r"><code>library(tidyverse)
-# USRent &lt;- read.csv(&#39;~/us_rent_income.csv&#39;)
 DeathRate &lt;- read_csv(&quot;~/DeathRate.csv&quot;)
 HealthIns &lt;- read_csv(&quot;~/healthins.csv&quot;)
 
-# head(USRent)
+
 head(DeathRate)</code></pre>
 <pre><code>## # A tibble: 6 x 73
 ##   State `All cancer typ… `All cancer typ… `All cancer typ… `Brain and othe…
@@ -1606,19 +1606,10 @@ head(DeathRate)</code></pre>
 ## #   `Medicaid Enrollment (2016)` &lt;dbl&gt;, `Medicaid Enrollment Change
 ## #   (2013-2016)` &lt;dbl&gt;, `Medicare Enrollment (2016)` &lt;dbl&gt;</code></pre>
 </div>
-<div id="tidying-reshaping" class="section level4">
-<h4>Tidying: Reshaping</h4>
+<div id="tidying-reshaping" class="section level3">
+<h3>Tidying: Reshaping</h3>
 <p>If your datasets are tidy already, demonstrate that you can reshape data with pivot wider/longer here (e.g., untidy and then retidy). Alternatively, it may be easier to wait until the wrangling section so you can reshape your summary statistics. Note here if you are going to do this.</p>
-<pre class="r"><code># usrentin &lt;- USRent %&gt;% pivot_wider(names_from=&#39;variable&#39;,
-# values_from=&#39;estimate&#39;) %&gt;% select(-moe) usrentin &lt;-
-# usrentin %&gt;% group_by(NAME) %&gt;%
-# summarize(income=max(income,na.rm=T),rent=max(rent,na.rm=T))
-# usrentin
-
-
-
-
-usdeath &lt;- DeathRate %&gt;% pivot_longer(2:73, names_to = &quot;CancerType&quot;, 
+<pre class="r"><code>usdeath &lt;- DeathRate %&gt;% pivot_longer(2:73, names_to = &quot;CancerType&quot;, 
     values_to = &quot;DeathRate&quot;)
 usdeath &lt;- usdeath %&gt;% na_if(&quot;n/a&quot;) %&gt;% na_if(&quot;Not available - Rate not displayed due to fewer than 10 deaths.&quot;)
 usdeath &lt;- usdeath %&gt;% mutate(DeathRate = str_remove_all(DeathRate, 
@@ -1673,8 +1664,8 @@ healthinsurance</code></pre>
 <pre class="r"><code># May use pivot_wider when reshaping summary statistics!
 # healthinsurance %&gt;% pivot_wider()</code></pre>
 </div>
-<div id="joiningmerging" class="section level4">
-<h4>Joining/Merging</h4>
+<div id="joiningmerging" class="section level3">
+<h3>Joining/Merging</h3>
 <pre class="r"><code>fulldata &lt;- left_join(healthinsurance, usdeath, by = &quot;State&quot;)
 glimpse(fulldata)</code></pre>
 <pre><code>## Rows: 14,976
@@ -1778,15 +1769,9 @@ semi_join(usdeath, healthinsurance, by = &quot;State&quot;) %&gt;% distinct(Stat
 ## # … with 42 more rows</code></pre>
 <p>Discussions of joining here. Feel encouraged to break up into more than once code chunk and discuss each in turn.</p>
 </div>
-<div id="wrangling" class="section level4">
-<h4>Wrangling</h4>
-<pre class="r"><code># need to use 3 more functions within summarize need to use
-# my own function within summarize use mutate?!?!? stringr
-# function
-
-# mutate() summarize()
-
-fulldata %&gt;% summarize_all(n_distinct)</code></pre>
+<div id="wrangling" class="section level3">
+<h3>Wrangling</h3>
+<pre class="r"><code>fulldata %&gt;% summarize_all(n_distinct)</code></pre>
 <pre><code>## # A tibble: 1 x 8
 ##   State MedicaidExpansi… UninsuredYear UninsuredRatepe… MedicaidYear
 ##   &lt;int&gt;            &lt;int&gt;         &lt;int&gt;            &lt;int&gt;        &lt;int&gt;
@@ -1856,44 +1841,77 @@ fulldata %&gt;% group_by(State) %&gt;% summarize(Uninsuredsd = sd(UninsuredRatep
 ##  9 Arkansas      Lung and bronchus / Both sexes combined       528
 ## 10 Michigan      Lung and bronchus / Male                      524
 ## # … with 2,198 more rows</code></pre>
-<pre class="r"><code>fulldata %&gt;% na.omit() %&gt;% filter(MedicaidEnrollment == max(MedicaidEnrollment))</code></pre>
-<pre><code>## # A tibble: 132 x 8
-##    State MedicaidExpansi… UninsuredYear UninsuredRatepe… MedicaidYear
-##    &lt;chr&gt; &lt;lgl&gt;            &lt;chr&gt;                    &lt;dbl&gt; &lt;chr&gt;       
-##  1 Cali… TRUE             2010                      18.5 2016        
-##  2 Cali… TRUE             2010                      18.5 2016        
-##  3 Cali… TRUE             2010                      18.5 2016        
-##  4 Cali… TRUE             2010                      18.5 2016        
-##  5 Cali… TRUE             2010                      18.5 2016        
-##  6 Cali… TRUE             2010                      18.5 2016        
-##  7 Cali… TRUE             2010                      18.5 2016        
-##  8 Cali… TRUE             2010                      18.5 2016        
-##  9 Cali… TRUE             2010                      18.5 2016        
-## 10 Cali… TRUE             2010                      18.5 2016        
-## # … with 122 more rows, and 3 more variables: MedicaidEnrollment &lt;dbl&gt;,
-## #   CancerType &lt;chr&gt;, DeathRate &lt;dbl&gt;</code></pre>
-<pre class="r"><code># filter(!CancerType == &#39;All cancer types combined / Male&#39;,
-# !CancerType == &#39;All cancer types combined / Both sexes
-# combined&#39;, !CancerType == &#39;All cancer types combined /
-# Female&#39;) %&gt;% filter(!State == &#39;United States&#39;) %&gt;%
-# arrange(desc(MedicaidEnrollment)) %&gt;%
-# distinct(MedicaidEnrollment) %&gt;%
-# filter(MedicaidEnrollment==max(MedicaidEnrollment))
+<pre class="r"><code>fulldata %&gt;% na.omit() %&gt;% filter(MedicaidEnrollment == max(MedicaidEnrollment)) %&gt;% 
+    filter(!CancerType == &quot;All cancer types combined / Male&quot;, 
+        !CancerType == &quot;All cancer types combined / Both sexes combined&quot;, 
+        !CancerType == &quot;All cancer types combined / Female&quot;) %&gt;% 
+    filter(!State == &quot;United States&quot;) %&gt;% arrange(desc(MedicaidEnrollment)) %&gt;% 
+    distinct(MedicaidEnrollment) %&gt;% filter(MedicaidEnrollment == 
+    max(MedicaidEnrollment))</code></pre>
+<pre><code>## # A tibble: 1 x 1
+##   MedicaidEnrollment
+##                &lt;dbl&gt;
+## 1           11843081</code></pre>
+<pre class="r"><code>nfulldata &lt;- fulldata %&gt;% pivot_wider(names_from = &quot;UninsuredYear&quot;, 
+    values_from = &quot;UninsuredRateperc&quot;) %&gt;% rename(col1 = &quot;2010&quot;, 
+    col2 = &quot;2015&quot;)
 
-
-# mutate to calculate change in expansion or insured vs.
-# death rate by state mean, standard deviation, count, and
-# standard error of `distance` in each month (i.e., averaged
-# across `day`) for flights from the three different New York
-# airports (`origin`). You will use your sd and count to find
-# your se=sd/sqrt(count). Rename your summary variables
-# inside of `summarize()`.</code></pre>
+b &lt;- nfulldata %&gt;% select(&quot;col2&quot;)
+nfulldata %&gt;% filter(!CancerType == &quot;All cancer types combined / Male&quot;, 
+    !CancerType == &quot;All cancer types combined / Both sexes combined&quot;, 
+    !CancerType == &quot;All cancer types combined / Female&quot;) %&gt;% 
+    summarize(n_distinct(CancerType))</code></pre>
+<pre><code>## # A tibble: 1 x 1
+##   `n_distinct(CancerType)`
+##                      &lt;int&gt;
+## 1                       69</code></pre>
+<pre class="r"><code>changeinunins &lt;- function(x) (x/69)
+nfulldata %&gt;% group_by(State, col1, col2) %&gt;% mutate(UninsuredChange = col1 - 
+    col2) %&gt;% summarize(PercentageDueToType = changeinunins(UninsuredChange)) %&gt;% 
+    distinct(PercentageDueToType)</code></pre>
+<pre><code>## # A tibble: 52 x 4
+## # Groups:   State, col1, col2 [52]
+##    State                 col1  col2 PercentageDueToType
+##    &lt;chr&gt;                &lt;dbl&gt; &lt;dbl&gt;               &lt;dbl&gt;
+##  1 Alabama               14.6  10.1              0.0652
+##  2 Alaska                19.9  14.9              0.0725
+##  3 Arizona               16.9  10.8              0.0884
+##  4 Arkansas              17.5   9.5              0.116 
+##  5 California            18.5   8.6              0.143 
+##  6 Colorado              15.9   8.1              0.113 
+##  7 Connecticut            9.1   6                0.0449
+##  8 Delaware               9.7   5.9              0.0551
+##  9 District of Columbia   7.6   3.8              0.0551
+## 10 Florida               21.3  13.3              0.116 
+## # … with 42 more rows</code></pre>
+<pre class="r"><code>fulldata %&gt;% distinct(CancerType) %&gt;% filter(str_detect(CancerType, 
+    &quot;Male&quot;))</code></pre>
+<pre><code>## # A tibble: 24 x 1
+##    CancerType                           
+##    &lt;chr&gt;                                
+##  1 All cancer types combined / Male     
+##  2 Brain and other nervous system / Male
+##  3 Breast / Male                        
+##  4 Cervix / Male                        
+##  5 Colorectum / Male                    
+##  6 Esophagus / Male                     
+##  7 Hodgkin lymphoma / Male              
+##  8 Kidney and renal pelvis / Male       
+##  9 Larynx / Male                        
+## 10 Leukemia / Male                      
+## # … with 14 more rows</code></pre>
+<pre class="r"><code># need to use 1 more functions within summarize mean,
+# standard deviation, count, and standard error of `distance`
+# in each month (i.e., averaged across `day`) for flights
+# from the three different New York airports (`origin`). You
+# will use your sd and count to find your se=sd/sqrt(count).
+# Rename your summary variables inside of `summarize()`.</code></pre>
 <p>Your discussion of wrangling section here. Feel encouraged to break up into more than once code chunk and discuss each in turn.</p>
 <p>Your discussion of wrangling section here. Feel encouraged to break up into more than once code chunk and discuss each in turn.</p>
 <p>Your discussion of wrangling section here. Feel encouraged to break up into more than once code chunk and discuss each in turn.</p>
 </div>
-<div id="visualizing" class="section level4">
-<h4>Visualizing</h4>
+<div id="visualizing" class="section level3">
+<h3>Visualizing</h3>
 <pre class="r"><code># your plot 1</code></pre>
 <p>Your discussion of plot 1</p>
 <pre class="r"><code># your plot 2</code></pre>
@@ -1901,10 +1919,9 @@ fulldata %&gt;% group_by(State) %&gt;% summarize(Uninsuredsd = sd(UninsuredRatep
 <pre class="r"><code># your plot 3</code></pre>
 <p>Your discussion of plot 3</p>
 </div>
-<div id="concluding-remarks" class="section level4">
-<h4>Concluding Remarks</h4>
+<div id="concluding-remarks" class="section level3">
+<h3>Concluding Remarks</h3>
 <p>If any!</p>
-</div>
 </div>
 </div>
 

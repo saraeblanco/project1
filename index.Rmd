@@ -21,33 +21,26 @@ tidy=TRUE, tidy.opts=list(width.cutoff=60), R.options=list(max.print=100))
 
 ### Sara Blanco, seb4296
 
-#### Introduction 
+### Introduction 
 
 Paragraph or two introducing your datasets and variables, why they are interesting to you, etc.
 
 ```{R}
 library(tidyverse)
-#USRent <- read.csv("~/us_rent_income.csv")
 DeathRate <- read_csv("~/DeathRate.csv")
 HealthIns <- read_csv("~/healthins.csv")
 
-#head(USRent)
+
 head(DeathRate)
 head(HealthIns)
 
 ```
 
-#### Tidying: Reshaping
+### Tidying: Reshaping
 
 If your datasets are tidy already, demonstrate that you can reshape data with pivot wider/longer here (e.g., untidy and then retidy). Alternatively, it may be easier to wait until the wrangling section so you can reshape your summary statistics. Note here if you are going to do this.
 
 ```{R}
-#usrentin <- USRent %>% pivot_wider(names_from="variable", values_from="estimate") %>% select(-moe)
-#usrentin <- usrentin %>% group_by(NAME) %>% summarize(income=max(income,na.rm=T),rent=max(rent,na.rm=T))
-#usrentin
-
-
-
 
 usdeath <- DeathRate %>% pivot_longer(2:73, names_to="CancerType", values_to="DeathRate") 
 usdeath <- usdeath %>% na_if("n/a") %>% na_if("Not available - Rate not displayed due to fewer than 10 deaths.")
@@ -74,7 +67,7 @@ healthinsurance
 ```
 
     
-#### Joining/Merging
+### Joining/Merging
 
 ```{R}
 fulldata <- left_join(healthinsurance, usdeath, by="State")
@@ -115,17 +108,9 @@ Discussions of joining here. Feel encouraged to break up into more than once cod
 
 
 
-####  Wrangling
+###  Wrangling
 
 ```{R}
-#need to use 3 more functions within summarize 
-#need to use my own function within summarize
-#use mutate?!?!?
-#stringr function
-
-#mutate()
-#summarize()
-
 fulldata %>% summarize_all(n_distinct)
 
 
@@ -139,14 +124,19 @@ fulldata %>% group_by(State) %>% filter(MedicaidExpansion == TRUE, MedicaidYear 
 fulldata %>% group_by(State, CancerType) %>% filter(MedicaidExpansion == TRUE) %>% filter(!CancerType == "All cancer types combined / Male", !CancerType == "All cancer types combined / Both sexes combined", !CancerType == "All cancer types combined / Female") %>% arrange(desc(DeathRate)) %>% distinct(DeathRate)
 
 
-fulldata %>% na.omit() %>% filter(MedicaidEnrollment == max(MedicaidEnrollment))
+fulldata %>% na.omit() %>% filter(MedicaidEnrollment == max(MedicaidEnrollment)) %>% filter(!CancerType == "All cancer types combined / Male", !CancerType == "All cancer types combined / Both sexes combined", !CancerType == "All cancer types combined / Female") %>% filter(!State == "United States") %>% arrange(desc(MedicaidEnrollment)) %>% distinct(MedicaidEnrollment) %>% filter(MedicaidEnrollment==max(MedicaidEnrollment))
 
-  
-  
-#filter(!CancerType == "All cancer types combined / Male", !CancerType == "All cancer types combined / Both sexes combined", !CancerType == "All cancer types combined / Female") %>% filter(!State == "United States") %>% arrange(desc(MedicaidEnrollment)) %>% distinct(MedicaidEnrollment) %>% filter(MedicaidEnrollment==max(MedicaidEnrollment))
+nfulldata <- fulldata %>% pivot_wider(names_from="UninsuredYear", values_from="UninsuredRateperc") %>% rename("col1"="2010", "col2"="2015") 
+
+b <- nfulldata %>% select("col2")
+nfulldata %>% filter(!CancerType == "All cancer types combined / Male", !CancerType == "All cancer types combined / Both sexes combined", !CancerType == "All cancer types combined / Female") %>% summarize(n_distinct(CancerType))
+changeinunins <- function(x) (x/69)
+nfulldata %>% group_by(State, col1, col2) %>% mutate(UninsuredChange = col1-col2) %>% summarize(PercentageDueToType = changeinunins(UninsuredChange)) %>% distinct(PercentageDueToType)
 
 
-#mutate to calculate change in expansion or insured vs. death rate by state
+fulldata %>% distinct(CancerType) %>% filter(str_detect(CancerType, "Male"))
+
+#need to use 1 more functions within summarize  
 #mean, standard deviation, count, and standard error of `distance` in each month (i.e., averaged across `day`) for flights from the three different New York airports (`origin`). You will use your sd and count to find your se=sd/sqrt(count). Rename your summary variables inside of `summarize()`. 
 
 
@@ -163,7 +153,7 @@ Your discussion of wrangling section here. Feel encouraged to break up into more
 ```
 Your discussion of wrangling section here. Feel encouraged to break up into more than once code chunk and discuss each in turn.
 
-#### Visualizing
+### Visualizing
 
 ```{R}
 # your plot 1
@@ -183,7 +173,7 @@ Your discussion of plot 2
 
 Your discussion of plot 3
 
-#### Concluding Remarks
+### Concluding Remarks
 
 If any!
 
