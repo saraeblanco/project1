@@ -23,7 +23,7 @@ tidy=TRUE, tidy.opts=list(width.cutoff=60), R.options=list(max.print=100))
 
 ### Introduction 
 
-The datasets explored throughout this project focus on the potential relationship between cancer mortality rates and several statistics related to the Affordable Care Act. The first dataset, initially named "DeathRate" in this project, shows the annual death rate per 100,000 for each cancer type in each state in the United States between the years for 2014 and 2018. The second dataset, initially listed as "HealthIns" here, gives health insurance coverage statistics before and after the passage of the Affordable Care Act, including rates of uninsured individuals, enrollment in Medicare/Medicaid plans, and expansion status by state. 
+The datasets explored throughout this project focus on the potential relationship between cancer mortality rates and several statistics related to the Affordable Care Act. The first dataset, initially named "DeathRate", shows the annual death rate per 100,000 for each cancer type in each state in the United States between the years of 2014 and 2018. The second dataset, initially listed as "HealthIns", gives health insurance coverage statistics before and after the passage of the Affordable Care Act, including rates of uninsured individuals, enrollment in Medicare/Medicaid plans, and expansion status by state. 
 
 I chose to evaluate these datasets side by side because their time periods overlap, making it interesting to see what cancer statistics were like after the passage of the Affordable Care Act. This project allowed for the comparison of cancer mortality rates between states who chose to expand Medicaid programs and those who did not, giving me the ability to tangibly examine the effects of insurance coverage on a significant disease burden in the United States. 
 
@@ -32,11 +32,10 @@ library(tidyverse)
 
 DeathRate <- read_csv("~/DeathRate.csv")
 HealthIns <- read_csv("~/healthins.csv")
-
-head(DeathRate)
-head(HealthIns)
-
 ```
+
+
+
 
 ### Tidying: Reshaping
 
@@ -51,10 +50,12 @@ healthinsurance <- HealthIns %>% rename("2010" = "Uninsured Rate (2010)") %>% re
 healthinsurance <- healthinsurance %>% mutate(UninsuredRateperc = as.numeric(UninsuredRateperc))
 healthinsurance %>% str()
 ```
+To tidy these datasets, I first worked with usdeath to condense the number of columns by using pivot_longer, and then worked on editing the content by changing the way the NAs were coded, removing extraneous wording, and converting one of the variables into a numeric variable. For healthinsurance, I started by renaming the variables so they would be more manageble, and I also used pivot_longer to reduce the column number. This dataset also required some text manipulation, a conversion to a numeric variable, and removal of some of the columns that would not be applicable in this analysis. 
+
 Note: pivot_wider was used later in this project, in the wrangling section, to reshape my summary statistics for one of the datasets. 
 
-
-#EXPLAINNNNNNNN
+ 
+ 
     
 ### Joining/Merging
 
@@ -76,7 +77,7 @@ healthinsurance %>% summarize_all(n_distinct)
 usdeath %>% summarize_all(n_distinct)
 fulldata %>% summarize_all(n_distinct)
 ```
-One unique State ID, Puerto Rico, was lost when the datasets were joined, making the distinct number of unique states 52. This was done because the usdeath dataset did not include this state, so including it would have left NA values in the dataset that would have prevented evaluate of this state. 
+One unique State ID, Puerto Rico, was lost when the datasets were joined, making the distinct number of unique states 52. This was done because the healthinsurance dataset did not include this state, so including it would have left NA values in the dataset that would have prevented evaluation of this state. 
 
 ```{R}
 anti_join(healthinsurance, usdeath, by="State") %>% distinct(State)
@@ -85,64 +86,64 @@ semi_join(healthinsurance, usdeath, by="State") %>% distinct(State)
 ```
 Anti-joins were completed to find which observations in the healthinsurance dataset did not have a match in the usdeath dataset, which revealed that all of the variables matched under this condition. Conversely, Puerto Rico was in the usdeath dataset but did not have a match in the healthinsurance dataset. The datasets have 52 ID variables in common, with all of the 50 states included and the District of Columbia and The United States additionally present in both datasets. 
 
-###  Wrangling
 
+
+
+###  Wrangling 
+
+In this section, I calculated the mean, standard deviation, maximum, and minimum summary statistics for the three numeric variables within my joined dataset (UninsuredRatePerc, MedicaidEnrollment, and DeathRate).
 ```{R}
-fulldata %>% summarize_all(n_distinct)
-
-fulldata %>% group_by(MedicaidExpansion) %>% filter(MedicaidExpansion == TRUE) %>% distinct(State) %>% summarize(n=n())
-#fulldata %>% group_by(MedicaidExpansion)  %>% distinct(State) %>% summarize(sum(MedicaidExpansion))
-
-fulldata %>% group_by(State) %>% filter(MedicaidExpansion == TRUE, MedicaidYear == 2013) %>% select(MedicaidEnrollment) %>% distinct(MedicaidEnrollment)
-
-fulldata %>% group_by(State, CancerType) %>% filter(MedicaidExpansion == TRUE) %>% filter(!CancerType == "All cancer types combined / Male", !CancerType == "All cancer types combined / Both sexes combined", !CancerType == "All cancer types combined / Female") %>% arrange(desc(DeathRate)) %>% distinct(DeathRate)
-
-fulldata %>% na.omit() %>% filter(MedicaidEnrollment == max(MedicaidEnrollment)) %>% filter(!CancerType == "All cancer types combined / Male", !CancerType == "All cancer types combined / Both sexes combined", !CancerType == "All cancer types combined / Female") %>% filter(!State == "United States") %>% arrange(desc(MedicaidEnrollment)) %>% distinct(MedicaidEnrollment) %>% filter(MedicaidEnrollment==max(MedicaidEnrollment))
-
-nfulldata <- fulldata %>% pivot_wider(names_from="UninsuredYear", values_from="UninsuredRateperc") %>% rename("col1"="2010", "col2"="2015") 
-
-b <- nfulldata %>% select("col2")
-nfulldata %>% filter(!CancerType == "All cancer types combined / Male", !CancerType == "All cancer types combined / Both sexes combined", !CancerType == "All cancer types combined / Female") %>% summarize(n_distinct(CancerType))
-changeinunins <- function(x) (x/69)
-nfulldata %>% group_by(State, col1, col2) %>% mutate(UninsuredChange = col1-col2) %>% summarize(PercentageDueToType = changeinunins(UninsuredChange)) %>% distinct(PercentageDueToType)
-
-
-fulldata %>% distinct(CancerType) %>% filter(str_detect(CancerType, "Male"))
-
-#need to use 1 more functions within summarize  
-#mean, standard deviation, count, and standard error of `distance` in each month (i.e., averaged across `day`) for flights from the three different New York airports (`origin`). You will use your sd and count to find your se=sd/sqrt(count). Rename your summary variables inside of `summarize()`. 
-
-
-```
-Your discussion of wrangling section here. Feel encouraged to break up into more than once code chunk and discuss each in turn.
-
-```{R}
-#Summary stats
-
 library(knitr)
 
 fulldata %>% filter(State == "United States") %>% summarize(MeanUninsured = mean(UninsuredRateperc), SDUninsured = sd(UninsuredRateperc), MaxUninsured= max(UninsuredRateperc)) %>% kable(align = 'c')
 
 fulldata %>% group_by(State) %>% summarize(MeanUninsured = mean(UninsuredRateperc), SDUninsured = sd(UninsuredRateperc), MaxUninsured= max(UninsuredRateperc)) %>% kable()
+```
+The first table shows statistics for UninsuredRateperc, with the initial table being filtered to show statistics for the United States as a whole. The second table shows the same statistics for each state.  
 
-
-
+```{R}
 fulldata %>% group_by(MedicaidYear) %>% filter(State == "United States") %>% summarize(MeanEnrollment = mean(MedicaidEnrollment), SDEnrollment = sd(MedicaidEnrollment), MaxEnrollment= max(MedicaidEnrollment))  %>% kable()
 
 fulldata %>% group_by(MedicaidYear) %>% filter(!State == "United States") %>% na.omit() %>% summarize(MeanEnrollment = mean(MedicaidEnrollment), SDEnrollment = sd(MedicaidEnrollment), MaxEnrollment= max(MedicaidEnrollment))  %>% kable()
-
-
+```
+These tables show the same statistics for the U.S. at large and the states together for Medicaid Enrollment before and after the establishment of the ACA. 
+```{R}
 fulldata %>% filter(CancerType =="All cancer types combined / Both sexes combined") %>% summarize(MeanDeath = mean(DeathRate), SDDeath = sd(DeathRate), MaxDeath= max(DeathRate), MinDeath=min(DeathRate))  %>% kable(align = 'c')
 
 fulldata %>% group_by(CancerType) %>% na.omit() %>% summarize(MeanDeath = mean(DeathRate), SDDeath = sd(DeathRate), MaxDeath= max(DeathRate), MinDeath=min(DeathRate))  %>% kable(digits = 3)
-
 ```
-Your discussion of wrangling section here. Feel encouraged to break up into more than once code chunk and discuss each in turn.
+These tables show the the summary statistics for DeathRate. The first table includes all cancer type and sex data, while the second table shows the statistics by specific cancer type. 
 
 ```{R}
-
+fulldata %>% count(State)
+fulldata %>% count(UninsuredYear)
+fulldata %>% count(MedicaidYear)
+fulldata %>% count(CancerType)
+fulldata %>% count(MedicaidExpansion)
+fulldata %>% summarize_all(funs(sum(is.na(.))))
 ```
-Your discussion of wrangling section here. Feel encouraged to break up into more than once code chunk and discuss each in turn.
+Here I calculated counts for each of the categorical variables in my project (State, UninsuredYear, MedicaidYear, CancerType, and MedicaidExpansion). The last table displayed here shows the number of NAs for all of the variables. 
+
+```{R}
+nfulldata <- fulldata %>% pivot_wider(names_from="UninsuredYear", values_from="UninsuredRateperc") %>% rename("col1"="2010", "col2"="2015") 
+
+b <- nfulldata %>% select("col2")
+nfulldata %>% filter(!CancerType == "All cancer types combined / Male", !CancerType == "All cancer types combined / Both sexes combined", !CancerType == "All cancer types combined / Female") %>% summarize(n_distinct(CancerType))
+changeinunins <- function(x) (x/69)
+
+nfulldata %>% group_by(State, col1, col2) %>% mutate(UninsuredChange = col1-col2) -> nnfulldata
+nnfulldata %>% group_by(State, col1, col2, UninsuredChange) %>% summarize(PercentageDueToType = changeinunins(UninsuredChange)) %>% mutate(PercentageDueToType) %>% arrange(desc(PercentageDueToType)) %>% distinct(PercentageDueToType)
+
+
+fulldata %>% distinct(CancerType) %>% filter(str_detect(CancerType, "Male")) %>% count()
+
+
+fulldata %>% group_by(UninsuredYear, MedicaidExpansion) %>% summarize(n_distinct(UninsuredRateperc))
+```
+In this section, I explored the dataset by grouping and filtering to reduce the data in order to display any potential relationships. First, I identified the number of distinct cancer types (excluding those that counted all types), and then I created a function to divide a variable by this number. I then took the Uninsured Rates for the years 2010 and 2015 and calculated the change in those rates for each state, and plugged that into the function to theoretically account for how much each cancer type affects the change in Uninsured. Though this is only conceptual, it's interesting to imagine how much of a role each cancer type would play in this change between states, and this goes to demonstrate the influence of greater insurance access and greater use of medical assistance. Next, I used str_detect to find the number of cancer types that collected statistics for males, and lastly, I grouped by two categorical variables to find the distinct number of Uninsured based on UninsuredYear and MedicaidExpansion. 
+
+
+
 
 ### Visualizing
 
@@ -169,6 +170,9 @@ fulldata %>% na.omit() %>% group_by(MedicaidEnrollment, State, DeathRate, Medica
 fulldata %>% filter(!State == "United States") %>% filter(MedicaidYear=="2016") %>% summarize(mean(MedicaidEnrollment))
 ```
 This plot showcases the Medicaid enrollment after the passage of the ACA act plotted against the Death rates for all cancer types and both sexes for each state. This plot shows many of the points focused on the higher end of the spectrum for deathrate, and a fair number of the points below the mean medicaid enrollment (1441822). With that being said, it would be wrong to say that states with lower medicaid enrollment tend to have higher death rates because this plot has so much variation across states on the higher end of the death rate axis. Additionally, it's interesting to consider the states on the far left hand side of the plot (North Dakota and New Hampshire) that have extremely low death rates and low medicaid enrollment. Overall, this plot shows that Medicaid Enrollment and Death Rate do not seem to have a clear relationship. 
+
+
+
 
 ### Concluding Remarks
 

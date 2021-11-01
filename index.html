@@ -1538,74 +1538,12 @@ div.tocify {
 </div>
 <div id="introduction" class="section level3">
 <h3>Introduction</h3>
-<p>The datasets explored throughout this project focus on the potential relationship between cancer mortality rates and several statistics related to the Affordable Care Act. The first dataset, initially named “DeathRate” in this project, shows the annual death rate per 100,000 for each cancer type in each state in the United States between the years for 2014 and 2018. The second dataset, initially listed as “HealthIns” here, gives health insurance coverage statistics before and after the passage of the Affordable Care Act, including rates of uninsured individuals, enrollment in Medicare/Medicaid plans, and expansion status by state.</p>
+<p>The datasets explored throughout this project focus on the potential relationship between cancer mortality rates and several statistics related to the Affordable Care Act. The first dataset, initially named “DeathRate”, shows the annual death rate per 100,000 for each cancer type in each state in the United States between the years of 2014 and 2018. The second dataset, initially listed as “HealthIns”, gives health insurance coverage statistics before and after the passage of the Affordable Care Act, including rates of uninsured individuals, enrollment in Medicare/Medicaid plans, and expansion status by state.</p>
 <p>I chose to evaluate these datasets side by side because their time periods overlap, making it interesting to see what cancer statistics were like after the passage of the Affordable Care Act. This project allowed for the comparison of cancer mortality rates between states who chose to expand Medicaid programs and those who did not, giving me the ability to tangibly examine the effects of insurance coverage on a significant disease burden in the United States.</p>
 <pre class="r"><code>library(tidyverse)
 
 DeathRate &lt;- read_csv(&quot;~/DeathRate.csv&quot;)
-HealthIns &lt;- read_csv(&quot;~/healthins.csv&quot;)
-
-head(DeathRate)</code></pre>
-<pre><code>## # A tibble: 6 x 73
-##   State `All cancer typ… `All cancer typ… `All cancer typ… `Brain and othe…
-##   &lt;chr&gt; &lt;chr&gt;            &lt;chr&gt;            &lt;chr&gt;            &lt;chr&gt;           
-## 1 All … 155.5            133.5            185.5            4.4             
-## 2 Alab… 173.4            142.3            216.6            5.1             
-## 3 Alas… 152.6            133.6            175.8            4.2             
-## 4 Ariz… 137.9            118.1            162.1            4.2             
-## 5 Arka… 177.6            148              216.8            4.8             
-## 6 Cali… 140.3            122.5            164.9            4.4             
-## # … with 68 more variables: `Brain and other nervous system / Female` &lt;chr&gt;,
-## #   `Brain and other nervous system / Male` &lt;chr&gt;, `Breast / Both sexes
-## #   combined` &lt;chr&gt;, `Breast / Female` &lt;chr&gt;, `Breast / Male` &lt;chr&gt;, `Cervix /
-## #   Both sexes combined` &lt;chr&gt;, `Cervix / Female` &lt;chr&gt;, `Cervix / Male` &lt;chr&gt;,
-## #   `Colorectum / Both sexes combined` &lt;chr&gt;, `Colorectum / Female` &lt;chr&gt;,
-## #   `Colorectum / Male` &lt;chr&gt;, `Esophagus / Both sexes combined` &lt;chr&gt;,
-## #   `Esophagus / Female` &lt;chr&gt;, `Esophagus / Male` &lt;chr&gt;, `Hodgkin lymphoma /
-## #   Both sexes combined` &lt;chr&gt;, `Hodgkin lymphoma / Female` &lt;chr&gt;, `Hodgkin
-## #   lymphoma / Male` &lt;chr&gt;, `Kidney and renal pelvis / Both sexes
-## #   combined` &lt;chr&gt;, `Kidney and renal pelvis / Female` &lt;chr&gt;, `Kidney and
-## #   renal pelvis / Male` &lt;chr&gt;, `Larynx / Both sexes combined` &lt;chr&gt;, `Larynx /
-## #   Female` &lt;chr&gt;, `Larynx / Male` &lt;chr&gt;, `Leukemia / Both sexes
-## #   combined` &lt;chr&gt;, `Leukemia / Female` &lt;chr&gt;, `Leukemia / Male` &lt;chr&gt;, `Liver
-## #   and intrahepatic bile duct / Both sexes combined` &lt;chr&gt;, `Liver and
-## #   intrahepatic bile duct / Female` &lt;chr&gt;, `Liver and intrahepatic bile duct /
-## #   Male` &lt;chr&gt;, `Lung and bronchus / Both sexes combined` &lt;chr&gt;, `Lung and
-## #   bronchus / Female` &lt;chr&gt;, `Lung and bronchus / Male` &lt;chr&gt;, `Melanoma of
-## #   the skin / Both sexes combined` &lt;chr&gt;, `Melanoma of the skin /
-## #   Female` &lt;chr&gt;, `Melanoma of the skin / Male` &lt;chr&gt;, `Myeloma / Both sexes
-## #   combined` &lt;chr&gt;, `Myeloma / Female` &lt;chr&gt;, `Myeloma / Male` &lt;chr&gt;,
-## #   `Non-Hodgkin lymphoma / Both sexes combined` &lt;chr&gt;, `Non-Hodgkin lymphoma /
-## #   Female` &lt;chr&gt;, `Non-Hodgkin lymphoma / Male` &lt;chr&gt;, `Oral cavity and
-## #   pharynx / Both sexes combined` &lt;chr&gt;, `Oral cavity and pharynx /
-## #   Female` &lt;chr&gt;, `Oral cavity and pharynx / Male` &lt;chr&gt;, `Ovary / Both sexes
-## #   combined` &lt;chr&gt;, `Ovary / Female` &lt;chr&gt;, `Ovary / Male` &lt;chr&gt;, `Pancreas /
-## #   Both sexes combined` &lt;chr&gt;, `Pancreas / Female` &lt;chr&gt;, `Pancreas /
-## #   Male` &lt;chr&gt;, `Prostate / Both sexes combined` &lt;chr&gt;, `Prostate /
-## #   Female` &lt;chr&gt;, `Prostate / Male` &lt;chr&gt;, `Stomach / Both sexes
-## #   combined` &lt;chr&gt;, `Stomach / Female` &lt;chr&gt;, `Stomach / Male` &lt;chr&gt;, `Testis
-## #   / Both sexes combined` &lt;chr&gt;, `Testis / Female` &lt;chr&gt;, `Testis /
-## #   Male` &lt;chr&gt;, `Thyroid / Both sexes combined` &lt;chr&gt;, `Thyroid /
-## #   Female` &lt;chr&gt;, `Thyroid / Male` &lt;chr&gt;, `Urinary bladder / Both sexes
-## #   combined` &lt;chr&gt;, `Urinary bladder / Female` &lt;chr&gt;, `Urinary bladder /
-## #   Male` &lt;chr&gt;, `Uterine corpus / Both sexes combined` &lt;chr&gt;, `Uterine corpus
-## #   / Female` &lt;chr&gt;, `Uterine corpus / Male` &lt;chr&gt;</code></pre>
-<pre class="r"><code>head(HealthIns)</code></pre>
-<pre><code>## # A tibble: 6 x 14
-##   State `Uninsured Rate… `Uninsured Rate… `Uninsured Rate… `Health Insuran…
-##   &lt;chr&gt; &lt;chr&gt;            &lt;chr&gt;            &lt;chr&gt;                       &lt;dbl&gt;
-## 1 Alab… 14.6%            10.1%            -4.5%                      215000
-## 2 Alas… 19.9%            14.9%            -5%                         36000
-## 3 Ariz… 16.9%            10.8%            -6.1%                      410000
-## 4 Arka… 17.5%            9.5%             -8%                        234000
-## 5 Cali… 18.5%            8.6%             -9.9%                     3826000
-## 6 Colo… 15.9%            8.1%             -7.8%                      419000
-## # … with 9 more variables: `Employer Health Insurance Coverage (2015)` &lt;dbl&gt;,
-## #   `Marketplace Health Insurance Coverage (2016)` &lt;dbl&gt;, `Marketplace Tax
-## #   Credits (2016)` &lt;dbl&gt;, `Average Monthly Tax Credit (2016)` &lt;chr&gt;, `State
-## #   Medicaid Expansion (2016)` &lt;lgl&gt;, `Medicaid Enrollment (2013)` &lt;dbl&gt;,
-## #   `Medicaid Enrollment (2016)` &lt;dbl&gt;, `Medicaid Enrollment Change
-## #   (2013-2016)` &lt;dbl&gt;, `Medicare Enrollment (2016)` &lt;dbl&gt;</code></pre>
+HealthIns &lt;- read_csv(&quot;~/healthins.csv&quot;)</code></pre>
 </div>
 <div id="tidying-reshaping" class="section level3">
 <h3>Tidying: Reshaping</h3>
@@ -1641,8 +1579,8 @@ healthinsurance %&gt;% str()</code></pre>
 ##  $ UninsuredRateperc : num [1:208] 14.6 14.6 10.1 10.1 19.9 19.9 14.9 14.9 16.9 16.9 ...
 ##  $ MedicaidYear      : chr [1:208] &quot;2013&quot; &quot;2016&quot; &quot;2013&quot; &quot;2016&quot; ...
 ##  $ MedicaidEnrollment: num [1:208] 799176 910775 799176 910775 122334 ...</code></pre>
+<p>To tidy these datasets, I first worked with usdeath to condense the number of columns by using pivot_longer, and then worked on editing the content by changing the way the NAs were coded, removing extraneous wording, and converting one of the variables into a numeric variable. For healthinsurance, I started by renaming the variables so they would be more manageble, and I also used pivot_longer to reduce the column number. This dataset also required some text manipulation, a conversion to a numeric variable, and removal of some of the columns that would not be applicable in this analysis.</p>
 <p>Note: pivot_wider was used later in this project, in the wrangling section, to reshape my summary statistics for one of the datasets.</p>
-<p>#EXPLAINNNNNNNN</p>
 </div>
 <div id="joiningmerging" class="section level3">
 <h3>Joining/Merging</h3>
@@ -1694,7 +1632,7 @@ glimpse(fulldata)</code></pre>
 ## 1    52                3             2               78            2
 ## # … with 3 more variables: MedicaidEnrollment &lt;int&gt;, CancerType &lt;int&gt;,
 ## #   DeathRate &lt;int&gt;</code></pre>
-<p>One unique State ID, Puerto Rico, was lost when the datasets were joined, making the distinct number of unique states 52. This was done because the usdeath dataset did not include this state, so including it would have left NA values in the dataset that would have prevented evaluate of this state.</p>
+<p>One unique State ID, Puerto Rico, was lost when the datasets were joined, making the distinct number of unique states 52. This was done because the healthinsurance dataset did not include this state, so including it would have left NA values in the dataset that would have prevented evaluation of this state.</p>
 <pre class="r"><code>anti_join(healthinsurance, usdeath, by = &quot;State&quot;) %&gt;% distinct(State)</code></pre>
 <pre><code>## # A tibble: 0 x 1
 ## # … with 1 variable: State &lt;chr&gt;</code></pre>
@@ -1722,129 +1660,8 @@ glimpse(fulldata)</code></pre>
 </div>
 <div id="wrangling" class="section level3">
 <h3>Wrangling</h3>
-<pre class="r"><code>fulldata %&gt;% summarize_all(n_distinct)</code></pre>
-<pre><code>## # A tibble: 1 x 8
-##   State MedicaidExpansi… UninsuredYear UninsuredRatepe… MedicaidYear
-##   &lt;int&gt;            &lt;int&gt;         &lt;int&gt;            &lt;int&gt;        &lt;int&gt;
-## 1    52                3             2               78            2
-## # … with 3 more variables: MedicaidEnrollment &lt;int&gt;, CancerType &lt;int&gt;,
-## #   DeathRate &lt;int&gt;</code></pre>
-<pre class="r"><code>fulldata %&gt;% group_by(MedicaidExpansion) %&gt;% filter(MedicaidExpansion == 
-    TRUE) %&gt;% distinct(State) %&gt;% summarize(n = n())</code></pre>
-<pre><code>## # A tibble: 1 x 2
-##   MedicaidExpansion     n
-##   &lt;lgl&gt;             &lt;int&gt;
-## 1 TRUE                 32</code></pre>
-<pre class="r"><code># fulldata %&gt;% group_by(MedicaidExpansion) %&gt;%
-# distinct(State) %&gt;% summarize(sum(MedicaidExpansion))
-
-fulldata %&gt;% group_by(State) %&gt;% filter(MedicaidExpansion == 
-    TRUE, MedicaidYear == 2013) %&gt;% select(MedicaidEnrollment) %&gt;% 
-    distinct(MedicaidEnrollment)</code></pre>
-<pre><code>## # A tibble: 32 x 2
-## # Groups:   State [32]
-##    State                MedicaidEnrollment
-##    &lt;chr&gt;                             &lt;dbl&gt;
-##  1 Alaska                           122334
-##  2 Arizona                         1201770
-##  3 Arkansas                         556851
-##  4 California                      7755381
-##  5 Colorado                         783420
-##  6 Connecticut                          NA
-##  7 Delaware                         223324
-##  8 District of Columbia             235786
-##  9 Hawaii                           288357
-## 10 Illinois                        2626943
-## # … with 22 more rows</code></pre>
-<pre class="r"><code>fulldata %&gt;% group_by(State, CancerType) %&gt;% filter(MedicaidExpansion == 
-    TRUE) %&gt;% filter(!CancerType == &quot;All cancer types combined / Male&quot;, 
-    !CancerType == &quot;All cancer types combined / Both sexes combined&quot;, 
-    !CancerType == &quot;All cancer types combined / Female&quot;) %&gt;% 
-    arrange(desc(DeathRate)) %&gt;% distinct(DeathRate)</code></pre>
-<pre><code>## # A tibble: 2,208 x 3
-## # Groups:   State, CancerType [2,208]
-##    State         CancerType                              DeathRate
-##    &lt;chr&gt;         &lt;chr&gt;                                       &lt;dbl&gt;
-##  1 Kentucky      Lung and bronchus / Male                      753
-##  2 Arkansas      Lung and bronchus / Male                      676
-##  3 West Virginia Lung and bronchus / Male                      671
-##  4 Louisiana     Lung and bronchus / Male                      616
-##  5 Indiana       Lung and bronchus / Male                      605
-##  6 Kentucky      Lung and bronchus / Both sexes combined       604
-##  7 Ohio          Lung and bronchus / Male                      583
-##  8 West Virginia Lung and bronchus / Both sexes combined       536
-##  9 Arkansas      Lung and bronchus / Both sexes combined       528
-## 10 Michigan      Lung and bronchus / Male                      524
-## # … with 2,198 more rows</code></pre>
-<pre class="r"><code>fulldata %&gt;% na.omit() %&gt;% filter(MedicaidEnrollment == max(MedicaidEnrollment)) %&gt;% 
-    filter(!CancerType == &quot;All cancer types combined / Male&quot;, 
-        !CancerType == &quot;All cancer types combined / Both sexes combined&quot;, 
-        !CancerType == &quot;All cancer types combined / Female&quot;) %&gt;% 
-    filter(!State == &quot;United States&quot;) %&gt;% arrange(desc(MedicaidEnrollment)) %&gt;% 
-    distinct(MedicaidEnrollment) %&gt;% filter(MedicaidEnrollment == 
-    max(MedicaidEnrollment))</code></pre>
-<pre><code>## # A tibble: 1 x 1
-##   MedicaidEnrollment
-##                &lt;dbl&gt;
-## 1           11843081</code></pre>
-<pre class="r"><code>nfulldata &lt;- fulldata %&gt;% pivot_wider(names_from = &quot;UninsuredYear&quot;, 
-    values_from = &quot;UninsuredRateperc&quot;) %&gt;% rename(col1 = &quot;2010&quot;, 
-    col2 = &quot;2015&quot;)
-
-b &lt;- nfulldata %&gt;% select(&quot;col2&quot;)
-nfulldata %&gt;% filter(!CancerType == &quot;All cancer types combined / Male&quot;, 
-    !CancerType == &quot;All cancer types combined / Both sexes combined&quot;, 
-    !CancerType == &quot;All cancer types combined / Female&quot;) %&gt;% 
-    summarize(n_distinct(CancerType))</code></pre>
-<pre><code>## # A tibble: 1 x 1
-##   `n_distinct(CancerType)`
-##                      &lt;int&gt;
-## 1                       69</code></pre>
-<pre class="r"><code>changeinunins &lt;- function(x) (x/69)
-nfulldata %&gt;% group_by(State, col1, col2) %&gt;% mutate(UninsuredChange = col1 - 
-    col2) %&gt;% summarize(PercentageDueToType = changeinunins(UninsuredChange)) %&gt;% 
-    distinct(PercentageDueToType)</code></pre>
-<pre><code>## # A tibble: 52 x 4
-## # Groups:   State, col1, col2 [52]
-##    State                 col1  col2 PercentageDueToType
-##    &lt;chr&gt;                &lt;dbl&gt; &lt;dbl&gt;               &lt;dbl&gt;
-##  1 Alabama               14.6  10.1              0.0652
-##  2 Alaska                19.9  14.9              0.0725
-##  3 Arizona               16.9  10.8              0.0884
-##  4 Arkansas              17.5   9.5              0.116 
-##  5 California            18.5   8.6              0.143 
-##  6 Colorado              15.9   8.1              0.113 
-##  7 Connecticut            9.1   6                0.0449
-##  8 Delaware               9.7   5.9              0.0551
-##  9 District of Columbia   7.6   3.8              0.0551
-## 10 Florida               21.3  13.3              0.116 
-## # … with 42 more rows</code></pre>
-<pre class="r"><code>fulldata %&gt;% distinct(CancerType) %&gt;% filter(str_detect(CancerType, 
-    &quot;Male&quot;))</code></pre>
-<pre><code>## # A tibble: 24 x 1
-##    CancerType                           
-##    &lt;chr&gt;                                
-##  1 All cancer types combined / Male     
-##  2 Brain and other nervous system / Male
-##  3 Breast / Male                        
-##  4 Cervix / Male                        
-##  5 Colorectum / Male                    
-##  6 Esophagus / Male                     
-##  7 Hodgkin lymphoma / Male              
-##  8 Kidney and renal pelvis / Male       
-##  9 Larynx / Male                        
-## 10 Leukemia / Male                      
-## # … with 14 more rows</code></pre>
-<pre class="r"><code># need to use 1 more functions within summarize mean,
-# standard deviation, count, and standard error of `distance`
-# in each month (i.e., averaged across `day`) for flights
-# from the three different New York airports (`origin`). You
-# will use your sd and count to find your se=sd/sqrt(count).
-# Rename your summary variables inside of `summarize()`.</code></pre>
-<p>Your discussion of wrangling section here. Feel encouraged to break up into more than once code chunk and discuss each in turn.</p>
-<pre class="r"><code># Summary stats
-
-library(knitr)
+<p>In this section, I calculated the mean, standard deviation, maximum, and minimum summary statistics for the three numeric variables within my joined dataset (UninsuredRatePerc, MedicaidEnrollment, and DeathRate).</p>
+<pre class="r"><code>library(knitr)
 
 fulldata %&gt;% filter(State == &quot;United States&quot;) %&gt;% summarize(MeanUninsured = mean(UninsuredRateperc), 
     SDUninsured = sd(UninsuredRateperc), MaxUninsured = max(UninsuredRateperc)) %&gt;% 
@@ -2192,6 +2009,7 @@ fulldata %&gt;% filter(State == &quot;United States&quot;) %&gt;% summarize(Mean
 </tr>
 </tbody>
 </table>
+<p>The first table shows statistics for UninsuredRateperc, with the initial table being filtered to show statistics for the United States as a whole. The second table shows the same statistics for each state.</p>
 <pre class="r"><code>fulldata %&gt;% group_by(MedicaidYear) %&gt;% filter(State == &quot;United States&quot;) %&gt;% 
     summarize(MeanEnrollment = mean(MedicaidEnrollment), SDEnrollment = sd(MedicaidEnrollment), 
         MaxEnrollment = max(MedicaidEnrollment)) %&gt;% kable()</code></pre>
@@ -2247,6 +2065,7 @@ fulldata %&gt;% filter(State == &quot;United States&quot;) %&gt;% summarize(Mean
 </tr>
 </tbody>
 </table>
+<p>These tables show the same statistics for the U.S. at large and the states together for Medicaid Enrollment before and after the establishment of the ACA.</p>
 <pre class="r"><code>fulldata %&gt;% filter(CancerType == &quot;All cancer types combined / Both sexes combined&quot;) %&gt;% 
     summarize(MeanDeath = mean(DeathRate), SDDeath = sd(DeathRate), 
         MaxDeath = max(DeathRate), MinDeath = min(DeathRate)) %&gt;% 
@@ -2747,8 +2566,118 @@ fulldata %&gt;% filter(State == &quot;United States&quot;) %&gt;% summarize(Mean
 </tr>
 </tbody>
 </table>
-<p>Your discussion of wrangling section here. Feel encouraged to break up into more than once code chunk and discuss each in turn.</p>
-<p>Your discussion of wrangling section here. Feel encouraged to break up into more than once code chunk and discuss each in turn.</p>
+<p>These tables show the the summary statistics for DeathRate. The first table includes all cancer type and sex data, while the second table shows the statistics by specific cancer type.</p>
+<pre class="r"><code>fulldata %&gt;% count(State)</code></pre>
+<pre><code>## # A tibble: 52 x 2
+##    State                    n
+##    &lt;chr&gt;                &lt;int&gt;
+##  1 Alabama                288
+##  2 Alaska                 288
+##  3 Arizona                288
+##  4 Arkansas               288
+##  5 California             288
+##  6 Colorado               288
+##  7 Connecticut            288
+##  8 Delaware               288
+##  9 District of Columbia   288
+## 10 Florida                288
+## # … with 42 more rows</code></pre>
+<pre class="r"><code>fulldata %&gt;% count(UninsuredYear)</code></pre>
+<pre><code>## # A tibble: 2 x 2
+##   UninsuredYear     n
+##   &lt;chr&gt;         &lt;int&gt;
+## 1 2010           7488
+## 2 2015           7488</code></pre>
+<pre class="r"><code>fulldata %&gt;% count(MedicaidYear)</code></pre>
+<pre><code>## # A tibble: 2 x 2
+##   MedicaidYear     n
+##   &lt;chr&gt;        &lt;int&gt;
+## 1 2013          7488
+## 2 2016          7488</code></pre>
+<pre class="r"><code>fulldata %&gt;% count(CancerType)</code></pre>
+<pre><code>## # A tibble: 72 x 2
+##    CancerType                                               n
+##    &lt;chr&gt;                                                &lt;int&gt;
+##  1 All cancer types combined / Both sexes combined        208
+##  2 All cancer types combined / Female                     208
+##  3 All cancer types combined / Male                       208
+##  4 Brain and other nervous system / Both sexes combined   208
+##  5 Brain and other nervous system / Female                208
+##  6 Brain and other nervous system / Male                  208
+##  7 Breast / Both sexes combined                           208
+##  8 Breast / Female                                        208
+##  9 Breast / Male                                          208
+## 10 Cervix / Both sexes combined                           208
+## # … with 62 more rows</code></pre>
+<pre class="r"><code>fulldata %&gt;% count(MedicaidExpansion)</code></pre>
+<pre><code>## # A tibble: 3 x 2
+##   MedicaidExpansion     n
+##   &lt;lgl&gt;             &lt;int&gt;
+## 1 FALSE              5472
+## 2 TRUE               9216
+## 3 NA                  288</code></pre>
+<pre class="r"><code>fulldata %&gt;% summarize_all(funs(sum(is.na(.))))</code></pre>
+<pre><code>## # A tibble: 1 x 8
+##   State MedicaidExpansi… UninsuredYear UninsuredRatepe… MedicaidYear
+##   &lt;int&gt;            &lt;int&gt;         &lt;int&gt;            &lt;int&gt;        &lt;int&gt;
+## 1     0              288             0                0            0
+## # … with 3 more variables: MedicaidEnrollment &lt;int&gt;, CancerType &lt;int&gt;,
+## #   DeathRate &lt;int&gt;</code></pre>
+<p>Here I calculated counts for each of the categorical variables in my project (State, UninsuredYear, MedicaidYear, CancerType, and MedicaidExpansion). The last table displayed here shows the number of NAs for all of the variables.</p>
+<pre class="r"><code>nfulldata &lt;- fulldata %&gt;% pivot_wider(names_from = &quot;UninsuredYear&quot;, 
+    values_from = &quot;UninsuredRateperc&quot;) %&gt;% rename(col1 = &quot;2010&quot;, 
+    col2 = &quot;2015&quot;)
+
+b &lt;- nfulldata %&gt;% select(&quot;col2&quot;)
+nfulldata %&gt;% filter(!CancerType == &quot;All cancer types combined / Male&quot;, 
+    !CancerType == &quot;All cancer types combined / Both sexes combined&quot;, 
+    !CancerType == &quot;All cancer types combined / Female&quot;) %&gt;% 
+    summarize(n_distinct(CancerType))</code></pre>
+<pre><code>## # A tibble: 1 x 1
+##   `n_distinct(CancerType)`
+##                      &lt;int&gt;
+## 1                       69</code></pre>
+<pre class="r"><code>changeinunins &lt;- function(x) (x/69)
+
+nnfulldata &lt;- nfulldata %&gt;% group_by(State, col1, col2) %&gt;% mutate(UninsuredChange = col1 - 
+    col2)
+nnfulldata %&gt;% group_by(State, col1, col2, UninsuredChange) %&gt;% 
+    summarize(PercentageDueToType = changeinunins(UninsuredChange)) %&gt;% 
+    mutate(PercentageDueToType) %&gt;% arrange(desc(PercentageDueToType)) %&gt;% 
+    distinct(PercentageDueToType)</code></pre>
+<pre><code>## # A tibble: 52 x 5
+## # Groups:   State, col1, col2, UninsuredChange [52]
+##    State          col1  col2 UninsuredChange PercentageDueToType
+##    &lt;chr&gt;         &lt;dbl&gt; &lt;dbl&gt;           &lt;dbl&gt;               &lt;dbl&gt;
+##  1 Nevada         22.6  12.3            10.3               0.149
+##  2 Oregon         17.1   7              10.1               0.146
+##  3 California     18.5   8.6             9.9               0.143
+##  4 Kentucky       15.3   6               9.3               0.135
+##  5 New Mexico     19.6  10.9             8.7               0.126
+##  6 West Virginia  14.6   6               8.6               0.125
+##  7 Arkansas       17.5   9.5             8                 0.116
+##  8 Florida        21.3  13.3             8                 0.116
+##  9 Colorado       15.9   8.1             7.8               0.113
+## 10 Washington     14.2   6.6             7.6               0.110
+## # … with 42 more rows</code></pre>
+<pre class="r"><code>fulldata %&gt;% distinct(CancerType) %&gt;% filter(str_detect(CancerType, 
+    &quot;Male&quot;)) %&gt;% count()</code></pre>
+<pre><code>## # A tibble: 1 x 1
+##       n
+##   &lt;int&gt;
+## 1    24</code></pre>
+<pre class="r"><code>fulldata %&gt;% group_by(UninsuredYear, MedicaidExpansion) %&gt;% summarize(n_distinct(UninsuredRateperc))</code></pre>
+<pre><code>## # A tibble: 6 x 3
+## # Groups:   UninsuredYear [2]
+##   UninsuredYear MedicaidExpansion `n_distinct(UninsuredRateperc)`
+##   &lt;chr&gt;         &lt;lgl&gt;                                       &lt;int&gt;
+## 1 2010          FALSE                                          19
+## 2 2010          TRUE                                           31
+## 3 2010          NA                                              1
+## 4 2015          FALSE                                          17
+## 5 2015          TRUE                                           27
+## 6 2015          NA                                              1</code></pre>
+<p>In this section, I explored the dataset by grouping and filtering to reduce the data in order to display any potential relationships. First, I identified the number of distinct cancer types (excluding those that counted all types), and then I created a function to divide a variable by this number. I then took the Uninsured Rates for the years 2010 and 2015 and calculated the change in those rates for each state, and plugged that into the function to theoretically account for how much each cancer type affects the change in Uninsured. Though this is only conceptual, it’s interesting to imagine how much of a role each cancer type would play in this change between states, and this goes to demonstrate the influence of greater insurance access and greater use of medical assistance. Next, I used str_detect to find the number of cancer types that collected statistics for males, and lastly, I grouped by two categorical variables to find the distinct number of Uninsured based on UninsuredYear and MedicaidExpansion.</p>
 </div>
 <div id="visualizing" class="section level3">
 <h3>Visualizing</h3>
