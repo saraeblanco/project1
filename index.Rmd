@@ -23,9 +23,9 @@ tidy=TRUE, tidy.opts=list(width.cutoff=60), R.options=list(max.print=100))
 
 ### Introduction 
 
-The datasets explored throughout this project focus on the potential relationship between cancer mortality rates and several statistics related to the Affordable Care Act. The first dataset, initially named "DeathRate", shows the annual death rate per 100,000 for each cancer type in each state in the United States between the years of 2014 and 2018. The second dataset, initially listed as "HealthIns", gives health insurance coverage statistics before and after the passage of the Affordable Care Act, including rates of uninsured individuals, enrollment in Medicare/Medicaid plans, and expansion status by state. 
+The datasets explored throughout this project were chosen to focus on the potential relationship between cancer mortality rates and several statistics related to the Affordable Care Act. The first dataset, initially named "DeathRate", shows the annual death rate per 100,000 for each cancer type in each state in the United States between the years of 2014 and 2018. The second dataset, initially listed as "HealthIns", gives health insurance coverage statistics before and after the passage of the Affordable Care Act, including rates of uninsured individuals, enrollment in Medicaid plans, and expansion status by state. 
 
-I chose to evaluate these datasets side by side because their time periods overlap, making it interesting to see what cancer statistics were like after the passage of the Affordable Care Act. This project allowed for the comparison of cancer mortality rates between states who chose to expand Medicaid programs and those who did not, giving me the ability to tangibly examine the effects of insurance coverage on a significant disease burden in the United States. 
+I chose to evaluate these datasets side by side because their time periods overlap, making it interesting to see what cancer statistics were like in relation to the passage of the Affordable Care Act. These datasets were acquired from the American Cancer Society and US Department of Health and Human Services. This project allowed for the comparison of cancer mortality rates between states who chose to expand Medicaid programs and those who did not, giving me the ability to tangibly examine the effects of insurance coverage on a significant disease burden in the United States. I expect that there may be an association between increased coverage and/or Medicaid Expansion and Death Rate, as better insurance may allow for more utilization of health care. 
 
 ```{R}
 library(tidyverse)
@@ -50,7 +50,7 @@ healthinsurance <- HealthIns %>% rename("2010" = "Uninsured Rate (2010)") %>% re
 healthinsurance <- healthinsurance %>% mutate(UninsuredRateperc = as.numeric(UninsuredRateperc))
 healthinsurance %>% str()
 ```
-To tidy these datasets, I first worked with usdeath to condense the number of columns by using pivot_longer, and then worked on editing the content by changing the way the NAs were coded, removing extraneous wording, and converting one of the variables into a numeric variable. For healthinsurance, I started by renaming the variables so they would be more manageble, and I also used pivot_longer to reduce the column number. This dataset also required some text manipulation, a conversion to a numeric variable, and removal of some of the columns that would not be applicable in this analysis. 
+To tidy these datasets, I first worked with usdeath to condense the number of columns by using pivot_longer, and then worked on editing the content by changing the way the NAs were coded, removing extraneous wording, and converting one of the variables into a numeric variable. For healthinsurance, I started by renaming the variables so they would be more manageable to work with, and I also used pivot_longer to reduce the column number. This dataset also required some text manipulation, a conversion to a numeric variable, and removal of some of the columns that would not be applicable in this analysis. 
 
 Note: pivot_wider was used later in this project, in the wrangling section, to reshape my summary statistics for one of the datasets. 
 
@@ -63,7 +63,7 @@ Note: pivot_wider was used later in this project, in the wrangling section, to r
 fulldata <- left_join(healthinsurance, usdeath, by="State")
 glimpse(fulldata)
 ```
-I decided to complete a left join for these datasets because I thought it would be appropriate to merge the datasets based on where the bulk of the data was. The healthinsurance dataset contained a majority of the variables I wished to work with and I only wanted to add the variables (rows) from usdeath that matched according to the ID variable, state. 
+I decided to complete a left join for these datasets because I thought it would be appropriate to merge the datasets based on where the bulk of the data was. The healthinsurance dataset contained a majority of the variables I wished to work with and I only wanted to add the variables from usdeath that matched according to the ID variable, State. 
 
 ```{R}
 healthinsurance %>% dim()
@@ -77,7 +77,7 @@ healthinsurance %>% summarize_all(n_distinct)
 usdeath %>% summarize_all(n_distinct)
 fulldata %>% summarize_all(n_distinct)
 ```
-One unique State ID, Puerto Rico, was lost when the datasets were joined, making the distinct number of unique states 52. This was done because the healthinsurance dataset did not include this state, so including it would have left NA values in the dataset that would have prevented evaluation of this state. 
+One unique State ID, Puerto Rico, was lost when the datasets were joined, making the distinct number of unique states in fulldata 52. This was done because the healthinsurance dataset did not include this state, so including it would have left NA values in the dataset that would have prevented evaluation of this state. healthinsurance contains 52 states and usdeath contains 53.
 
 ```{R}
 anti_join(healthinsurance, usdeath, by="State") %>% distinct(State)
@@ -91,7 +91,6 @@ Anti-joins were completed to find which observations in the healthinsurance data
 
 ###  Wrangling 
 
-In this section, I calculated the mean, standard deviation, maximum, and minimum summary statistics for the three numeric variables within my joined dataset (UninsuredRatePerc, MedicaidEnrollment, and DeathRate).
 ```{R}
 library(knitr)
 
@@ -99,28 +98,29 @@ fulldata %>% filter(State == "United States") %>% summarize(MeanUninsured = mean
 
 fulldata %>% group_by(State) %>% summarize(MeanUninsured = mean(UninsuredRateperc), SDUninsured = sd(UninsuredRateperc), MaxUninsured= max(UninsuredRateperc)) %>% kable()
 ```
-The first table shows statistics for UninsuredRateperc, with the initial table being filtered to show statistics for the United States as a whole. The second table shows the same statistics for each state.  
+
+In this section, I calculated the mean, standard deviation, maximum, and minimum summary statistics for the three numeric variables within my joined dataset (UninsuredRatePerc, MedicaidEnrollment, and DeathRate). The first table shows statistics for UninsuredRateperc, with the initial table being filtered to show statistics for the United States as a whole. The second table shows the same statistics for each state.  
 
 ```{R}
 fulldata %>% group_by(MedicaidYear) %>% filter(State == "United States") %>% summarize(MeanEnrollment = mean(MedicaidEnrollment), SDEnrollment = sd(MedicaidEnrollment), MaxEnrollment= max(MedicaidEnrollment))  %>% kable()
 
 fulldata %>% group_by(MedicaidYear) %>% filter(!State == "United States") %>% na.omit() %>% summarize(MeanEnrollment = mean(MedicaidEnrollment), SDEnrollment = sd(MedicaidEnrollment), MaxEnrollment= max(MedicaidEnrollment))  %>% kable()
 ```
-These tables show the same statistics for the U.S. at large and the states together for Medicaid Enrollment before and after the establishment of the ACA. 
+These tables show the same summary statistics for the United States ID variable and the states considered together for Medicaid Enrollment before (2013) and after (2016) the establishment of Medicaid coverage under the ACA. 
 ```{R}
 fulldata %>% filter(CancerType =="All cancer types combined / Both sexes combined") %>% summarize(MeanDeath = mean(DeathRate), SDDeath = sd(DeathRate), MaxDeath= max(DeathRate), MinDeath=min(DeathRate))  %>% kable(align = 'c')
 
 fulldata %>% group_by(CancerType) %>% na.omit() %>% summarize(MeanDeath = mean(DeathRate), SDDeath = sd(DeathRate), MaxDeath= max(DeathRate), MinDeath=min(DeathRate))  %>% kable(digits = 3)
 ```
-These tables show the the summary statistics for DeathRate. The first table includes all cancer type and sex data, while the second table shows the statistics by specific cancer type. 
+These tables show the the summary statistics for DeathRate. The first table was filtered to include all cancer type and sex data, while the second table shows the statistics by specific cancer type. 
 
 ```{R}
-fulldata %>% count(State)
-fulldata %>% count(UninsuredYear)
-fulldata %>% count(MedicaidYear)
-fulldata %>% count(CancerType)
-fulldata %>% count(MedicaidExpansion)
-fulldata %>% summarize_all(funs(sum(is.na(.))))
+fulldata %>% count(State) %>% kable()
+fulldata %>% count(UninsuredYear) %>% kable()
+fulldata %>% count(MedicaidYear) %>% kable()
+fulldata %>% count(CancerType) %>% kable()
+fulldata %>% count(MedicaidExpansion) %>% kable()
+fulldata %>% summarize_all(funs(sum(is.na(.)))) %>% kable()
 ```
 Here I calculated counts for each of the categorical variables in my project (State, UninsuredYear, MedicaidYear, CancerType, and MedicaidExpansion). The last table displayed here shows the number of NAs for all of the variables. 
 
@@ -128,19 +128,19 @@ Here I calculated counts for each of the categorical variables in my project (St
 nfulldata <- fulldata %>% pivot_wider(names_from="UninsuredYear", values_from="UninsuredRateperc") %>% rename("col1"="2010", "col2"="2015") 
 
 b <- nfulldata %>% select("col2")
-nfulldata %>% filter(!CancerType == "All cancer types combined / Male", !CancerType == "All cancer types combined / Both sexes combined", !CancerType == "All cancer types combined / Female") %>% summarize(n_distinct(CancerType))
+nfulldata %>% filter(!CancerType == "All cancer types combined / Male", !CancerType == "All cancer types combined / Both sexes combined", !CancerType == "All cancer types combined / Female") %>% summarize(n_distinct(CancerType)) %>% kable()
 changeinunins <- function(x) (x/69)
 
 nfulldata %>% group_by(State, col1, col2) %>% mutate(UninsuredChange = col1-col2) -> nnfulldata
-nnfulldata %>% group_by(State, col1, col2, UninsuredChange) %>% summarize(PercentageDueToType = changeinunins(UninsuredChange)) %>% mutate(PercentageDueToType) %>% arrange(desc(PercentageDueToType)) %>% distinct(PercentageDueToType)
+nnfulldata %>% group_by(State, col1, col2, UninsuredChange) %>% summarize(PercentageDueToType = changeinunins(UninsuredChange)) %>% mutate(PercentageDueToType) %>% arrange(desc(PercentageDueToType)) %>% distinct(PercentageDueToType) %>% kable()
 
 
-fulldata %>% distinct(CancerType) %>% filter(str_detect(CancerType, "Male")) %>% count()
+fulldata %>% distinct(CancerType) %>% filter(str_detect(CancerType, "Male")) %>% count() %>% kable()
 
 
-fulldata %>% group_by(UninsuredYear, MedicaidExpansion) %>% summarize(n_distinct(UninsuredRateperc))
+fulldata %>% group_by(UninsuredYear, MedicaidExpansion) %>% summarize(n_distinct(UninsuredRateperc)) %>% kable()
 ```
-In this section, I explored the dataset by grouping and filtering to reduce the data in order to display any potential relationships. First, I identified the number of distinct cancer types (excluding those that counted all types), and then I created a function to divide a variable by this number. I then took the Uninsured Rates for the years 2010 and 2015 and calculated the change in those rates for each state, and plugged that into the function to theoretically account for how much each cancer type affects the change in Uninsured. Though this is only conceptual, it's interesting to imagine how much of a role each cancer type would play in this change between states, and this goes to demonstrate the influence of greater insurance access and greater use of medical assistance. Next, I used str_detect to find the number of cancer types that collected statistics for males, and lastly, I grouped by two categorical variables to find the distinct number of Uninsured based on UninsuredYear and MedicaidExpansion. 
+In this section, I explored the dataset by grouping and filtering to reduce the data in order to display any potential relationships. First, I identified the number of distinct cancer types (excluding those that counted all types), and then I created a function to divide a variable by this number. I then used mutate to take the Uninsured Rates for the years 2010 and 2015 and calculate the change in those rates for each state, and then plugged those values into the function to theoretically account for how much each cancer type affects the change in Uninsured. Though this is only conceptual, it's interesting to imagine how much of a role each cancer type would play in this change between states, and this goes to demonstrate the influence of greater insurance access and greater use of medical assistance. Next, I used str_detect to find the number of cancer types that collected statistics for males, and lastly, I grouped by two categorical variables to find the distinct number of Uninsured based on UninsuredYear and MedicaidExpansion. 
 
 
 
@@ -148,11 +148,9 @@ In this section, I explored the dataset by grouping and filtering to reduce the 
 ### Visualizing
 
 ```{R}
-fulldata %>% group_by(State, CancerType) %>% filter(!CancerType == "All cancer types combined") %>% filter(!State == "United States") %>% distinct(CancerType) 
-
-fulldata %>% group_by(State, UninsuredRateperc, UninsuredYear, CancerType, DeathRate, MedicaidExpansion) %>% filter(!State == "United States") %>% distinct(UninsuredRateperc) %>% arrange(desc(UninsuredRateperc)) %>% filter(CancerType == "All cancer types combined / Both sexes combined") %>% filter(MedicaidExpansion == FALSE) %>% ggplot(aes(y=UninsuredRateperc, x=DeathRate, color=State)) + geom_line() + geom_point(aes(shape=UninsuredYear), alpha=0.80) + scale_shape_manual(values=c(16, 25)) + ggtitle("Change in Uninsured and Death Rates of Non-Expanding States") + xlab("Death Rate for All cancer types combined / Both sexes combined") + ylab("Uninsured Rate") + theme(plot.title = element_text(hjust = 0.6)) + scale_y_continuous(breaks=seq(0,25,10)) + scale_x_continuous(breaks=seq(0,2000,100))+ theme_gray() + theme(legend.title = element_text( size=10), legend.text=element_text(size=7))+ theme(legend.key.size = unit(0.4, 'cm'))  
+fulldata %>% group_by(State, UninsuredRateperc, UninsuredYear, CancerType, DeathRate, MedicaidExpansion) %>% filter(!State == "United States") %>% distinct(UninsuredRateperc) %>% arrange(desc(UninsuredRateperc)) %>% filter(CancerType == "All cancer types combined / Both sexes combined") %>% filter(MedicaidExpansion == FALSE) %>% ggplot(aes(y=UninsuredRateperc, x=DeathRate, color=State)) + geom_line() + geom_point(aes(shape=UninsuredYear), alpha=0.80) + scale_shape_manual(values=c(16, 25)) + ggtitle("Change in Uninsured and Death Rates of Non-Expanding States") + xlab("Death Rate for All cancer types combined / Both sexes combined") + ylab("Uninsured Rate") + theme(plot.title = element_text(hjust = 0.6)) + scale_y_continuous(breaks=seq(0,25,10)) + scale_x_continuous(breaks=seq(0,2000,100))+ theme_gray() + theme(legend.title = element_text( size=10), legend.text=element_text(size=7))+ theme(legend.key.size = unit(0.4, 'cm'))
 ```
-This plot demonstrates the change in the Rate of Uninsured individuals for each of the states that chose not to expand Medicaid coverage plotted against the death rates for these states. The data varies greatly between states, but you can see a upward trend in deathrates as the uninsured rate drops. This is evident in the center of the plot, where the states with already comparatively low uninsured rates in 2010 (like Virginia, Nebraska, and South Carolina) lie. This plot additionally shows that some states (Texas and Georgia) with higher uninsured rates do in fact have lower death rates for the "All cancer types combined" measure. There does not appear to be a clear relationship between these variables as there is a lot of variation in death rate that does not seem to be explained by the change in the rate of uninsured individuals. 
+This plot demonstrates the change in the rate of uninsured individuals for each of the states that chose not to expand Medicaid coverage plotted against the death rates for these states. The data varies greatly between states, but you can see an upward trend in death rates when the uninsured rate is low. This is evident in the center of the plot, where the states with already comparatively low uninsured rates in 2010 (like Nebraska, Wisconsin, and South Dakota) lie. This plot additionally shows that some states (Texas and Florida) with higher uninsured rates do in fact have lower death rates for the "All cancer types combined" measure. There does not appear to be a clear relationship between these variables as there is a lot of variation in death rate that does not seem to be directly explained by the change in the rate of uninsured individuals. 
 
 ```{R}
 fulldata %>% group_by(State, MedicaidExpansion, CancerType, DeathRate) %>% filter(!CancerType == "All cancer types combined") %>% filter(!State == "United States") %>% distinct(CancerType) %>% filter(CancerType == "Lung and bronchus / Both sexes combined") %>% ggplot(x=DeathRate, y=State, aes(y=State, fill=MedicaidExpansion)) + geom_bar(aes(x=DeathRate), stat = "summary") + geom_text(aes(x=DeathRate, y=State, label=DeathRate), size=2.5,hjust=1.5, color="white") + xlab("Death Rate for Lung and bronchus / Both sexes combined") + ggtitle("Lung and Bronchus Death by State") + scale_x_continuous(breaks=seq(0,800,100)) + scale_fill_brewer(palette="Set1")+ theme_gray() + theme(legend.title = element_text(size=10), legend.text=element_text(size=8)) + theme(plot.title = element_text(hjust = 0.5)) + theme(axis.text.y = element_text(size = 7))
@@ -161,22 +159,16 @@ fulldata %>% group_by(State, MedicaidExpansion, CancerType, DeathRate) %>% filte
 In this plot, I chose to focus in on one cancer type, Lung and bronchus for both sexes, and plotted this against the variable State to get a bar chart that would allow us to view these numbers side by side. Additionally, the Medicaid expansion status of the states was considered. These counts of the variable DeathRate allow us to see that for lung cancer across sexes, Medicaid expansion status does not appear to have a drastic effect on mortality. For the states that did not choose to expand, the DeathRates vary considerably, with many of them being lower than states that did choose to expand Medicaid coverage. 
 
 ```{R}
-fulldata %>% na.omit() %>% group_by(State) %>% filter(MedicaidEnrollment == max(MedicaidEnrollment)) %>% distinct(MedicaidEnrollment)
-
 fulldata %>% na.omit() %>% group_by(MedicaidEnrollment, State, DeathRate, MedicaidYear) %>% filter(!State == "United States") %>% filter(CancerType == "All cancer types combined / Both sexes combined") %>% filter(MedicaidYear=="2016") %>% arrange(desc(MedicaidEnrollment)) %>% ggplot(aes(y=MedicaidEnrollment, x=DeathRate, color=State)) + geom_smooth(se=F, colour="grey") + geom_point(alpha =0.5) + scale_y_log10() + ggtitle("Enrollment and Death Rate Before and After ACA") + ylab("Medicaid Enrollment") + xlab("Death Rate for All cancer types combined / Both sexes combined") + theme_gray() + theme(legend.title = element_text( size=10), legend.text=element_text(size=7))+ theme(legend.key.size = unit(0.4, 'cm')) 
-
-#+ geom_text(position = position_nudge(y = +0.05, x = +0.2), aes(label=State), size=2, color="black")
-
-fulldata %>% filter(!State == "United States") %>% filter(MedicaidYear=="2016") %>% summarize(mean(MedicaidEnrollment))
 ```
-This plot showcases the Medicaid enrollment after the passage of the ACA act plotted against the Death rates for all cancer types and both sexes for each state. This plot shows many of the points focused on the higher end of the spectrum for deathrate, and a fair number of the points below the mean medicaid enrollment (1441822). With that being said, it would be wrong to say that states with lower medicaid enrollment tend to have higher death rates because this plot has so much variation across states on the higher end of the death rate axis. Additionally, it's interesting to consider the states on the far left hand side of the plot (North Dakota and New Hampshire) that have extremely low death rates and low medicaid enrollment. Overall, this plot shows that Medicaid Enrollment and Death Rate do not seem to have a clear relationship. 
+This plot showcases Medicaid enrollment after the passage of the ACA act plotted against the Death rates for all cancer types and both sexes for each state. This plot shows many of the points focused on the higher end of the spectrum for deathrate, and a fair number of the points below the mean medicaid enrollment (1464651). With that being said, it wouldn't be appropriate to say that states with lower medicaid enrollment tend to have higher death rates because this plot has so much variation across states on the higher end of the death rate axis. Additionally, it's interesting to consider the states on the far left hand side of the plot (North Dakota and New Hampshire) that have extremely low death rates and low medicaid enrollment. Overall, this plot shows that Medicaid Enrollment and Death Rate for all cancer types across both sexes do not seem to have a clear, distinguishable relationship. 
 
 
 
 
 ### Concluding Remarks
 
-In conclusion, the datasets explored in the project did not seem to have variables that could be used to draw definitive conclusions about the effects of insurance coverage on cancer mortality. There are numerous factors that contribute to the cancer outcomes within any given area and narrowing these statistics down to a handful of variables cannot independently explain the mechanisms that lead to health disparities across the country. 
+In conclusion, the datasets explored in the project did not seem to have variables that could be used to draw definitive conclusions about the effects of insurance coverage on cancer mortality. It is possible that the groupings completed in this project were not effective in displaying any potential relationships between these datasets. There are numerous factors that contribute to the cancer outcomes within any given area and narrowing these statistics down to a handful of variables cannot independently explain the mechanisms that lead to health disparities across the country. 
 
 
 
