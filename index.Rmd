@@ -94,25 +94,26 @@ Anti-joins were completed to find which observations in the healthinsurance data
 ```{R}
 library(knitr)
 
-fulldata %>% filter(State == "United States") %>% summarize(MeanUninsured = mean(UninsuredRateperc), SDUninsured = sd(UninsuredRateperc), MaxUninsured= max(UninsuredRateperc)) %>% kable(align = 'c')
+fulldata %>% filter(State == "United States") %>% distinct(UninsuredRateperc) %>% summarize(MeanUninsured = mean(UninsuredRateperc), SDUninsured = sd(UninsuredRateperc), MaxUninsured= max(UninsuredRateperc)) %>% kable(align = 'c')
 
-fulldata %>% group_by(State) %>% summarize(MeanUninsured = mean(UninsuredRateperc), SDUninsured = sd(UninsuredRateperc), MaxUninsured= max(UninsuredRateperc)) %>% kable()
+fulldata %>% group_by(State) %>% filter(!State == "United States") %>% distinct(UninsuredRateperc) %>% summarize(MeanUninsured = mean(UninsuredRateperc), SDUninsured = sd(UninsuredRateperc), MaxUninsured= max(UninsuredRateperc)) %>% kable()
 ```
 
-In this section, I calculated the mean, standard deviation, maximum, and minimum summary statistics for the three numeric variables within my joined dataset (UninsuredRatePerc, MedicaidEnrollment, and DeathRate). The first table shows statistics for UninsuredRateperc, with the initial table being filtered to show statistics for the United States as a whole. The second table shows the same statistics for each state.  
+In this section, I calculated the mean, standard deviation, maximum, and minimum summary statistics for the three numeric variables within my joined dataset (UninsuredRatePerc, MedicaidEnrollment, and DeathRate). The first table shows statistics for UninsuredRateperc, with the initial table being filtered to show statistics for the United States as a whole. The second table shows the same statistics for each state.
 
 ```{R}
-fulldata %>% group_by(MedicaidYear) %>% filter(State == "United States") %>% summarize(MeanEnrollment = mean(MedicaidEnrollment), SDEnrollment = sd(MedicaidEnrollment), MaxEnrollment= max(MedicaidEnrollment))  %>% kable()
+fulldata %>% group_by(MedicaidYear) %>% filter(State == "United States")  %>% distinct(MedicaidEnrollment) %>% summarize(MeanEnrollment = mean(MedicaidEnrollment), SDEnrollment = sd(MedicaidEnrollment), MaxEnrollment= max(MedicaidEnrollment))  %>% kable()
 
-fulldata %>% group_by(MedicaidYear) %>% filter(!State == "United States") %>% na.omit() %>% summarize(MeanEnrollment = mean(MedicaidEnrollment), SDEnrollment = sd(MedicaidEnrollment), MaxEnrollment= max(MedicaidEnrollment))  %>% kable()
+fulldata %>% group_by(MedicaidYear) %>% filter(!State == "United States") %>% na.omit() %>% distinct(MedicaidEnrollment) %>% summarize(MeanEnrollment = mean(MedicaidEnrollment), SDEnrollment = sd(MedicaidEnrollment), MaxEnrollment= max(MedicaidEnrollment))  %>% kable()
 ```
-These tables show the same summary statistics for the United States ID variable and the states considered together for Medicaid Enrollment before (2013) and after (2016) the establishment of Medicaid coverage under the ACA. 
+These tables show the same summary statistics for the United States ID variable and the states considered together for Medicaid Enrollment before (2013) and after (2016) the establishment of Medicaid coverage under the ACA. This was completed by grouping by MedicaidYear and then filtering to depict either the US as a whole or the states considered together. It's important to note that the statistics for the US overall differ from the states considered all together, which goes to show that it's vital to evaluate the states separately to get a better idea of the true data given throughout the dataset. 
+
 ```{R}
-fulldata %>% filter(CancerType =="All cancer types combined / Both sexes combined") %>% summarize(MeanDeath = mean(DeathRate), SDDeath = sd(DeathRate), MaxDeath= max(DeathRate), MinDeath=min(DeathRate))  %>% kable(align = 'c')
+fulldata %>% filter(CancerType =="All cancer types combined / Both sexes combined") %>% distinct(DeathRate) %>% summarize(MeanDeath = mean(DeathRate), SDDeath = sd(DeathRate), MaxDeath= max(DeathRate), MinDeath=min(DeathRate))  %>% kable(align = 'c')
 
-fulldata %>% group_by(CancerType) %>% na.omit() %>% summarize(MeanDeath = mean(DeathRate), SDDeath = sd(DeathRate), MaxDeath= max(DeathRate), MinDeath=min(DeathRate))  %>% kable(digits = 3)
+fulldata %>% group_by(CancerType) %>% na.omit() %>% distinct(DeathRate) %>% summarize(MeanDeath = mean(DeathRate), SDDeath = sd(DeathRate), MaxDeath= max(DeathRate), MinDeath=min(DeathRate))  %>% kable(digits = 3)
 ```
-These tables show the the summary statistics for DeathRate. The first table was filtered to include all cancer type and sex data, while the second table shows the statistics by specific cancer type. 
+These tables show the the summary statistics for DeathRate. The first table was filtered to include all cancer type and sex data, while the second table shows the statistics by specific cancer type, which required grouping by cancer type. 
 
 ```{R}
 fulldata %>% count(State) %>% kable()
@@ -168,7 +169,7 @@ This plot showcases Medicaid enrollment after the passage of the ACA act plotted
 
 ### Concluding Remarks
 
-In conclusion, the datasets explored in the project did not seem to have variables that could be used to draw definitive conclusions about the effects of insurance coverage on cancer mortality. It is possible that the groupings completed in this project were not effective in displaying any potential relationships between these datasets. There are numerous factors that contribute to the cancer outcomes within any given area and narrowing these statistics down to a handful of variables cannot independently explain the mechanisms that lead to health disparities across the country. 
+In conclusion, the datasets explored in the project did not seem to have variables that could be used to draw definitive conclusions about the effects of insurance coverage on cancer mortality. It is possible that the groupings completed in this project were not effective in displaying any potential relationships between these datasets. There are numerous factors that contribute to the cancer outcomes within any given area and narrowing these statistics down to a handful of variables cannot independently explain the mechanisms that lead to health disparities across the country. Further manipulation of this dataset may be needed to display additional connections between these variables. 
 
 
 
